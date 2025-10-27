@@ -3,23 +3,29 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DIRECT_URL")
 }
 
-model Times {
-  id      String   @id @default(uuid())
-  name    String
-  matches Match[]
+model Team {
+  id       String   @id @default(uuid())
+  name     String
+  homeMatches Match[] @relation("HomeTeam")
+  awayMatches Match[] @relation("AwayTeam")
 
-  @@map("Times")
+  @@map("Teams")
 }
 
 model Match {
-  id       String   @id @default(uuid())
-  team     Times    @relation(fields: [teamId], references: [id])
-  teamId   String
-  opponent String
-  score    String
-  date     DateTime
+  id             String   @id @default(uuid())
+  homeTeam       Team    @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  homeTeamId     String
+  awayTeam       Team    @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  awayTeamId     String
+  homeScore      Int
+  awayScore      Int
+  date           DateTime
+
+  @@unique([homeTeamId, awayTeamId, date])
+  @@map("Matches")
 }
