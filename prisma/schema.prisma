@@ -29,3 +29,7 @@ model Match {
   @@unique([homeTeamId, awayTeamId, date])
   @@map("Matches")
 }
+
+// Make a model to future Matches @relation with AI predictions
+
+// Make a model to the AI predictions
