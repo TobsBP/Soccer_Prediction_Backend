@@ -8,28 +8,34 @@ datasource db {
 }
 
 model Team {
-  id       String   @id @default(uuid())
-  name     String
-  homeMatches Match[] @relation("HomeTeam")
+  id          String  @id(map: "Times_pkey") @default(uuid())
+  name        String
   awayMatches Match[] @relation("AwayTeam")
+  homeMatches Match[] @relation("HomeTeam")
 
   @@map("Teams")
 }
 
 model Match {
-  id             String   @id @default(uuid())
-  homeTeam       Team    @relation("HomeTeam", fields: [homeTeamId], references: [id])
-  homeTeamId     String
-  awayTeam       Team    @relation("AwayTeam", fields: [awayTeamId], references: [id])
-  awayTeamId     String
-  homeScore      Int
-  awayScore      Int
-  date           DateTime
+  id          String       @id(map: "Match_pkey") @default(uuid())
+  homeTeamId  String
+  awayTeamId  String
+  homeScore   Int
+  awayScore   Int
+  date        DateTime
+  awayTeam    Team         @relation("AwayTeam", fields: [awayTeamId], references: [id], map: "Match_awayTeamId_fkey")
+  homeTeam    Team         @relation("HomeTeam", fields: [homeTeamId], references: [id], map: "Match_homeTeamId_fkey")
+  Predictions Predictions?
 
-  @@unique([homeTeamId, awayTeamId, date])
+  @@unique([homeTeamId, awayTeamId, date], map: "Match_homeTeamId_awayTeamId_date_key")
   @@map("Matches")
 }
 
-// Make a model to future Matches @relation with AI predictions
-
-// Make a model to the AI predictions
+model Predictions {
+  id                 String    @id @default(dbgenerated("(gen_random_uuid())::text"))
+  matchId            String    @unique
+  predictedHomeScore Int
+  predictedAwayScore Int
+  createdAt          DateTime? @default(now()) @db.Timestamp(6)
+  Matches            Match     @relation(fields: [matchId], references: [id], onDelete: Cascade, map: "Prediction_matchId_fkey")
+}
