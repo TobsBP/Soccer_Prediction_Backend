@@ -1,25 +1,24 @@
 import { PrismaClient } from "@prisma/client";
-import { FastifyRequest, FastifyReply } from 'fastify';
 import { MatchData } from '../types';
 
 const prisma = new PrismaClient();
 
-export const getMatches = async (request: FastifyRequest, reply: FastifyReply) => {
-  try {
-    const data = await prisma.match.findMany();
-
-    return reply.status(200).send({ data });
-  } catch (error) {
-    console.error("Can't reach the matches:", error);
-    return reply.status(500).send({ message: "Failed to fetch matches" });
-  }
+export const getMatches = async () => {
+  return await prisma.match.findMany({
+    include: {
+      homeTeam: { select: { id: true, name: true } },
+      awayTeam: { select: { id: true, name: true } },
+    },
+  });
 }
 
-export const uploadMatches = async (request: FastifyRequest, reply: FastifyReply) => {
+export const uploadMatches = async (): Promise<string> => {
   try {
     const token = process.env.API_SOCCER_KEY;
-    const matchesRes = await fetch(`https://api.soccerdataapi.com/matches/?league_id=216&auth_token=${token}`);
-    const data = (await matchesRes.json()) as MatchData[];
+    if (!token) throw new Error("API token not set");
+
+    const res = await fetch(`https://api.soccerdataapi.com/matches/?league_id=216&auth_token=${token}`);
+    const data = (await res.json()) as MatchData[];
 
     const teamsToCreate = new Map<string, { id: string; name: string }>();
     const matchesToCreate: {
@@ -69,9 +68,10 @@ export const uploadMatches = async (request: FastifyRequest, reply: FastifyReply
       });
     });
 
-    return reply.status(201).send({ message: "Matches uploaded." });
+    return "Matches uploaded successfully.";
   } catch (error) {
-    console.error(error);
-    return reply.status(500).send({ error: 'An error occurred while fetching games.' });
+    console.error("Upload matches error:", error);
+    
+    throw new Error("Failed to upload matches");
   }
 };
