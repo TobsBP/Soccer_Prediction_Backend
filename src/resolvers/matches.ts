@@ -3,11 +3,34 @@ import { MatchData } from '../types';
 
 const prisma = new PrismaClient();
 
-export const getMatches = async () => {
+export const getMatches = async (homeTeamId?: string, awayTeamId?: string) => {
+  const whereClause: any = {};
+
+  if (homeTeamId && awayTeamId) {
+    whereClause.OR = [
+      { homeTeamId: homeTeamId, awayTeamId: awayTeamId },
+      { homeTeamId: awayTeamId, awayTeamId: homeTeamId },
+    ];
+  } else if (homeTeamId) {
+    whereClause.OR = [
+      { homeTeamId: homeTeamId },
+      { awayTeamId: homeTeamId },
+    ];
+  } else if (awayTeamId) {
+    whereClause.OR = [
+      { homeTeamId: awayTeamId },
+      { awayTeamId: awayTeamId },
+    ];
+  }
+
   return await prisma.match.findMany({
+    where: whereClause,
     include: {
       homeTeam: { select: { id: true, name: true } },
       awayTeam: { select: { id: true, name: true } },
+    },
+    orderBy: {
+      date: 'asc', // Order by date to easily get last 5
     },
   });
 }
@@ -71,7 +94,6 @@ export const uploadMatches = async (): Promise<string> => {
     return "Matches uploaded successfully.";
   } catch (error) {
     console.error("Upload matches error:", error);
-    
     throw new Error("Failed to upload matches");
   }
 };
