@@ -10,6 +10,7 @@
     "@fastify/cors": "^11.1.0",
     "@fastify/swagger": "^9.5.2",
     "@fastify/swagger-ui": "^5.2.3",
+    "@google/genai": "^1.27.0",
     "@prisma/adapter-pg": "^6.18.0",
     "@prisma/client": "^6.18.0",
     "@supabase/supabase-js": "^2.76.1",
