@@ -1,4 +1,5 @@
 import { getMatches, uploadMatches } from '../resolvers/matches'
+import { authenticateApiKey } from '../plugins/auth'
 import type { FastifyTypedInstance } from '../types'
 import z from "zod"
 
@@ -20,6 +21,7 @@ const matchSchema = z.object({
 
 export async function matchRoutes(server: FastifyTypedInstance) {
   server.post('/uploadMatches', {
+    preHandler: authenticateApiKey,
     schema: {
       description: 'Uploads and stores match data from SoccerData API',
       response: {
@@ -43,6 +45,7 @@ export async function matchRoutes(server: FastifyTypedInstance) {
   });
 
   server.get('/getMatches', {
+    preHandler: authenticateApiKey,
     schema: {
       description: 'Get all Matches',
       response: {
