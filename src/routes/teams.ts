@@ -4,8 +4,6 @@ import type { FastifyTypedInstance } from '../types/type'
 import { teamSchema } from '../types/schemas/team'
 import z from "zod"
 
-
-
 export async function teamRoutes(server: FastifyTypedInstance) {
   server.get('/getTeams', {
     preHandler: authenticateApiKey,
@@ -19,7 +17,7 @@ export async function teamRoutes(server: FastifyTypedInstance) {
           message: z.string(),
         }),
       },
-      tags: ['Team']
+      tags: ['Team'],
     },
   }, async (request, reply) => {
     try {

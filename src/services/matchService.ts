@@ -1,6 +1,6 @@
 import { getMatches as getMatchesRepo, createManyMatches } from "../repositories/match";
 import { getTeams as getTeamsRepo } from "../repositories/teams";
-import { MatchData } from '../types';
+import { MatchData } from "../types/interfaces/IMatchData";
 
 export const getMatches = async (homeTeamId?: number, awayTeamId?: number) => {
   const whereClause: any = {};
