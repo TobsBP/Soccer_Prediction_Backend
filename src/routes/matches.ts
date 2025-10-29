@@ -1,7 +1,7 @@
-import { getMatches, uploadMatches } from '../resolvers/matches'
-import { authenticateApiKey } from '../plugins/auth'
-import type { FastifyTypedInstance } from '../types'
-import { matchSchema } from '../types'
+import { getMatches, uploadMatches } from '../services/matchService'
+import { authenticateApiKey } from '../middlewares/auth'
+import type { FastifyTypedInstance } from '../types/type'
+import { matchSchema } from '../types/schemas/Match'
 import z from "zod"
 
 export async function matchRoutes(server: FastifyTypedInstance) {

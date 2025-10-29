@@ -1,4 +1,4 @@
-import { getMatches } from "../resolvers/matches";
+import { getMatches } from "../../repositories/match";
 
 export async function formatterMatches(homeTeamId: number, awayTeamId: number) {
   const matches = await getMatches(homeTeamId, awayTeamId);

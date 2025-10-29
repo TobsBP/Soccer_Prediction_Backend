@@ -1,7 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { getMatches as getMatchesRepo, createManyMatches } from "../repositories/match";
+import { getTeams as getTeamsRepo } from "../repositories/teams";
 import { MatchData } from '../types';
-
-const prisma = new PrismaClient();
 
 export const getMatches = async (homeTeamId?: number, awayTeamId?: number) => {
   const whereClause: any = {};
@@ -23,16 +22,7 @@ export const getMatches = async (homeTeamId?: number, awayTeamId?: number) => {
     ];
   }
 
-  return await prisma.match.findMany({
-    where: whereClause,
-    include: {
-      homeTeam: { select: { id: true, name: true } },
-      awayTeam: { select: { id: true, name: true } },
-    },
-    orderBy: {
-      date: 'asc', // Order by date to easily get last 5
-    },
-  });
+  return await getMatchesRepo(homeTeamId, awayTeamId);
 }
 
 export const uploadMatches = async (): Promise<string> => {
@@ -45,7 +35,7 @@ export const uploadMatches = async (): Promise<string> => {
     const apiData = (await res.json()) as MatchData[];
 
     // 2. Fetch all teams from the local database and create a name-to-ID map
-    const localTeams = await prisma.team.findMany();
+    const localTeams = await getTeamsRepo();
     const teamNameToIdMap = new Map(localTeams.map(team => [team.name.toLowerCase(), team.id]));
 
     const matchesToCreate: {
@@ -69,11 +59,11 @@ export const uploadMatches = async (): Promise<string> => {
 
           // 5. Validate that teams exist in the local DB
           if (!homeTeamId) {
-            console.warn(`Skipping match: Home team \"${homeTeamName}\" not found in the database.`);
+            console.warn(`Skipping match: Home team "${homeTeamName}" not found in the database.`);
             continue;
           }
           if (!awayTeamId) {
-            console.warn(`Skipping match: Away team \"${awayTeamName}\" not found in the database.`);
+            console.warn(`Skipping match: Away team "${awayTeamName}" not found in the database.`);
             continue;
           }
 
@@ -95,10 +85,7 @@ export const uploadMatches = async (): Promise<string> => {
 
     // 6. Insert the new matches into the database
     if (matchesToCreate.length > 0) {
-      await prisma.match.createMany({
-        data: matchesToCreate,
-        skipDuplicates: true,
-      });
+      await createManyMatches(matchesToCreate);
     }
 
     return `Matches uploaded successfully. ${matchesToCreate.length} new matches created.`;

@@ -1,28 +1,13 @@
-import { PrismaClient } from "@prisma/client";
-import type { MatchData } from "../types";
-
-const prisma = new PrismaClient();
+import type { MatchData } from "../types/interfaces/IMatchData";
+import { getTeams as getTeamsRepo, getTeam as getTeamRepo, createManyTeams } from "../repositories/teams";
 
 export const getTeams = async () => {
-  const teams = await prisma.team.findMany({
-    select: {
-      id: true,
-      name: true
-    }
-  });
-
+  const teams = await getTeamsRepo();
   return teams;
 }
 
 export const getTeam = async (id: number) => {
-  const team = await prisma.team.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      name: true
-    }
-  });
-
+  const team = await getTeamRepo(id);
   return team;
 }
 
@@ -47,10 +32,7 @@ export const uploadTeams = async (): Promise<string[]> => {
 
     const teamNames = Array.from(teamNamesSet);
 
-    await prisma.team.createMany({
-      data: teamNames.map((name) => ({ name })),
-      skipDuplicates: true,
-    });
+    await createManyTeams(teamNames.map((name) => ({ name })));
 
     return teamNames;
   } catch (error) {

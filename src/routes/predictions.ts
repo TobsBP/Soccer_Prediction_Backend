@@ -1,6 +1,6 @@
-import { authenticateApiKey } from '../plugins/auth';
-import type { FastifyTypedInstance } from '../types'
-import { askAI } from '../resolvers/predictions'
+import { authenticateApiKey } from '../middlewares/auth';
+import type { FastifyTypedInstance } from '../types/type'
+import { askAI } from '../services/predictionService'
 import z from 'zod'
 
 export async function aiRoutes(server: FastifyTypedInstance) {

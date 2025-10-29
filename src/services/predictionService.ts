@@ -1,34 +1,18 @@
-import { formatterMatches } from '../formatters/matches';
-import { PrismaClient } from '@prisma/client';
-import { ai } from '../services/gemini';
-
-const prisma = new PrismaClient();
+import { formatterMatches } from '../utils/formatters/matches';
+import { ai } from '../config/gemini';
+import { findMatch } from '../repositories/match';
+import { findUniquePrediction, createPrediction } from '../repositories/predictions';
 
 export const askAI = async (homeTeamId: number, awayTeamId: number) => {
   // 1. Find the match
-  const match = await prisma.match.findFirst({
-    where: {
-      homeTeamId,
-      awayTeamId,
-      date: {
-        gte: new Date()
-      }
-    },
-    orderBy: {
-      date: 'asc'
-    }
-  });
+  const match = await findMatch(homeTeamId, awayTeamId);
 
   if (!match) {
     throw new Error("No upcoming match found for the given teams.");
   }
 
   // 2. Check for existing prediction
-  const existingPrediction = await prisma.predictions.findUnique({
-    where: {
-      matchId: match.id,
-    },
-  });
+  const existingPrediction = await findUniquePrediction(match.id);
 
   if (existingPrediction) {
     return `${existingPrediction.predictedHomeScore}-${existingPrediction.predictedAwayScore}`;
@@ -51,12 +35,10 @@ export const askAI = async (homeTeamId: number, awayTeamId: number) => {
 
   const [predictedHomeScore, predictedAwayScore] = predictionText.split('-').map(Number);
 
-  await prisma.predictions.create({
-    data: {
-      matchId: match.id,
-      predictedHomeScore,
-      predictedAwayScore,
-    },
+  await createPrediction({
+    matchId: match.id,
+    predictedHomeScore,
+    predictedAwayScore,
   });
 
   return predictionText;

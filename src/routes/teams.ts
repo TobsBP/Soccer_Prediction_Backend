@@ -1,7 +1,7 @@
-import { getTeams, getTeam, uploadTeams } from '../resolvers/teams';
-import { authenticateApiKey } from '../plugins/auth';
-import type { FastifyTypedInstance } from '../types'
-import { teamSchema } from '../types'
+import { getTeams, getTeam, uploadTeams } from '../services/teamService';
+import { authenticateApiKey } from '../middlewares/auth';
+import type { FastifyTypedInstance } from '../types/type'
+import { teamSchema } from '../types/schemas/team'
 import z from "zod"
 
 

@@ -1,4 +1,4 @@
-import type { FastifyTypedInstance } from '../types'
+import type { FastifyTypedInstance } from '../types/type'
 import { matchRoutes } from './matches';
 import { teamRoutes } from './teams';
 import { aiRoutes } from './predictions';
