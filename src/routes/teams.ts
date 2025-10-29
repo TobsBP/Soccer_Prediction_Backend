@@ -1,5 +1,5 @@
 import type { FastifyTypedInstance } from '../types'
-import { getTeams, getTeam } from '../resolvers/teams';
+import { getTeams, getTeam, uploadTeams } from '../resolvers/teams';
 import z from "zod"
 
 const teamSchema = z.object({
@@ -50,7 +50,7 @@ export async function teamRoutes(server: FastifyTypedInstance) {
     },
   }, async (request, reply) => {
     try {
-      const team = await getTeam(request.query.id);
+      const team = await getTeam(Number(request.query.id));
       if (!team) {
         return reply.status(404).send({ message: "Team not found" });
       }
@@ -60,4 +60,36 @@ export async function teamRoutes(server: FastifyTypedInstance) {
       return reply.status(500).send({ message: "Failed to fetch team" });
     }
   });
+
+  server.get('/uploadTeams', {
+    schema: {
+      description: 'Upload teams from external API',
+      response: {
+        200: z.object({
+          data: z.array(z.string()),
+        }),
+        404: z.object({
+          message: z.string(),
+        }),
+        500: z.object({
+          message: z.string(),
+        }),
+      },
+      tags: ['Team']
+    },
+  }, async (request, reply) => {
+    try {
+      const teams = await uploadTeams();
+      
+      if (!teams) {
+        return reply.status(404).send({ message: "Team not found" });
+      }
+      
+      return reply.status(200).send({ data: teams });
+    } catch (error) {
+      console.error("Can't reach the teams:", error);
+      return reply.status(500).send({ message: "Failed to fetch teams" });
+    }
+  });
+
 }
