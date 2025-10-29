@@ -1,6 +1,6 @@
-import { ai } from '../services/predictions';
 import { formatterMatches } from '../formatters/matches';
 import { PrismaClient } from '@prisma/client';
+import { ai } from '../services/gemini';
 
 const prisma = new PrismaClient();
 
