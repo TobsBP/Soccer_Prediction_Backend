@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import type { Team } from "../types";
 
 const prisma = new PrismaClient();
 
@@ -8,7 +9,7 @@ export const getTeams = async () => {
   return teams;
 }
 
-export const getTeam = async (id: string) => {
+export const getTeam = async (id: number) => {
   const team = await prisma.team.findUnique({
     where: { id }
   });

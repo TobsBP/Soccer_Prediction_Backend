@@ -1,6 +1,6 @@
 import { getMatches } from "../resolvers/matches";
 
-export async function formatterMatches(homeTeamId: string, awayTeamId: string) {
+export async function formatterMatches(homeTeamId: number, awayTeamId: number) {
   const matches = await getMatches(homeTeamId, awayTeamId);
 
   if (matches.length === 0) {

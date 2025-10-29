@@ -3,7 +3,7 @@ import { MatchData } from '../types';
 
 const prisma = new PrismaClient();
 
-export const getMatches = async (homeTeamId?: string, awayTeamId?: string) => {
+export const getMatches = async (homeTeamId?: number, awayTeamId?: number) => {
   const whereClause: any = {};
 
   if (homeTeamId && awayTeamId) {
@@ -43,10 +43,10 @@ export const uploadMatches = async (): Promise<string> => {
     const res = await fetch(`https://api.soccerdataapi.com/matches/?league_id=216&auth_token=${token}`);
     const data = (await res.json()) as MatchData[];
 
-    const teamsToCreate = new Map<string, { id: string; name: string }>();
+    const teamsToCreate = new Map<number, { id: number; name: string }>();
     const matchesToCreate: {
-      homeTeamId: string;
-      awayTeamId: string;
+      homeTeamId: number;
+      awayTeamId: number;
       homeScore: number;
       awayScore: number;
       date: Date;
@@ -59,16 +59,16 @@ export const uploadMatches = async (): Promise<string> => {
           const away = match.teams.away;
           const goals = match.goals;
 
-          teamsToCreate.set(home.id.toString(), { id: home.id.toString(), name: home.name });
-          teamsToCreate.set(away.id.toString(), { id: away.id.toString(), name: away.name });
+          teamsToCreate.set(home.id, { id: home.id, name: home.name });
+          teamsToCreate.set(away.id, { id: away.id, name: away.name });
 
           const [day, month, year] = match.date.split('/');
           const matchTime = match.time || "19:00:00";
           const isoDate = new Date(`${year}-${month}-${day}T${matchTime}Z`);
 
           matchesToCreate.push({
-            homeTeamId: home.id.toString(),
-            awayTeamId: away.id.toString(),
+            homeTeamId: home.id,
+            awayTeamId: away.id,
             homeScore: goals.home_ft_goals,
             awayScore: goals.away_ft_goals,
             date: isoDate,

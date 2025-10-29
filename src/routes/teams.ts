@@ -3,7 +3,7 @@ import { getTeams, getTeam } from '../resolvers/teams';
 import z from "zod"
 
 const teamSchema = z.object({
-  id: z.string(),
+  id: z.number(),
   name: z.string(),
 });
 
@@ -34,7 +34,7 @@ export async function teamRoutes(server: FastifyTypedInstance) {
   server.get('/getTeam', {
     schema: {
       querystring: z.object({
-        id: z.string(),
+        id: z.number(),
       }),
       description: 'Get a Team by ID',
       response: {

@@ -3,14 +3,14 @@ import type { FastifyTypedInstance } from '../types'
 import z from "zod"
 
 const teamSchema = z.object({
-  id: z.string(),
+  id: z.number(),
   name: z.string(),
 });
 
 const matchSchema = z.object({
-  id: z.string(),
-  homeTeamId: z.string(),
-  awayTeamId: z.string(),
+  id: z.number(),
+  homeTeamId: z.number(),
+  awayTeamId: z.number(),
   homeScore: z.number(),
   awayScore: z.number(),
   date: z.date(),

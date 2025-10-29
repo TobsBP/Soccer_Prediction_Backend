@@ -6,8 +6,8 @@ export async function aiRoutes(server: FastifyTypedInstance) {
   server.get('/askAI', {
     schema: {
       querystring: z.object({
-        homeTeamId: z.string(),
-        awayTeamId: z.string(),
+        homeTeamId: z.number(),
+        awayTeamId: z.number(),
       }),
       description: 'Get AI predictions for matches',
       response: {

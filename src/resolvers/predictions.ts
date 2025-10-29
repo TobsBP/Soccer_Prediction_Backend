@@ -4,7 +4,7 @@ import { ai } from '../services/gemini';
 
 const prisma = new PrismaClient();
 
-export const askAI = async (homeTeamId: string, awayTeamId: string) => {
+export const askAI = async (homeTeamId: number, awayTeamId: number) => {
   // 1. Find the match
   const match = await prisma.match.findFirst({
     where: {
