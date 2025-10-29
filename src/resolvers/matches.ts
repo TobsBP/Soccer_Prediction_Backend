@@ -37,13 +37,17 @@ export const getMatches = async (homeTeamId?: number, awayTeamId?: number) => {
 
 export const uploadMatches = async (): Promise<string> => {
   try {
+    // 1. Fetch matches from the external API
     const token = process.env.API_SOCCER_KEY;
     if (!token) throw new Error("API token not set");
 
     const res = await fetch(`https://api.soccerdataapi.com/matches/?league_id=216&auth_token=${token}`);
-    const data = (await res.json()) as MatchData[];
+    const apiData = (await res.json()) as MatchData[];
 
-    const teamsToCreate = new Map<number, { id: number; name: string }>();
+    // 2. Fetch all teams from the local database and create a name-to-ID map
+    const localTeams = await prisma.team.findMany();
+    const teamNameToIdMap = new Map(localTeams.map(team => [team.name.toLowerCase(), team.id]));
+
     const matchesToCreate: {
       homeTeamId: number;
       awayTeamId: number;
@@ -52,23 +56,35 @@ export const uploadMatches = async (): Promise<string> => {
       date: Date;
     }[] = [];
 
-    for (const league of data) {
+    // 3. Process the API data
+    for (const league of apiData) {
       for (const stage of league.stage) {
         for (const match of stage.matches) {
-          const home = match.teams.home;
-          const away = match.teams.away;
+          const homeTeamName = match.teams.home.name;
+          const awayTeamName = match.teams.away.name;
+
+          // 4. Find local team IDs by name
+          const homeTeamId = teamNameToIdMap.get(homeTeamName.toLowerCase());
+          const awayTeamId = teamNameToIdMap.get(awayTeamName.toLowerCase());
+
+          // 5. Validate that teams exist in the local DB
+          if (!homeTeamId) {
+            console.warn(`Skipping match: Home team \"${homeTeamName}\" not found in the database.`);
+            continue;
+          }
+          if (!awayTeamId) {
+            console.warn(`Skipping match: Away team \"${awayTeamName}\" not found in the database.`);
+            continue;
+          }
+
           const goals = match.goals;
-
-          teamsToCreate.set(home.id, { id: home.id, name: home.name });
-          teamsToCreate.set(away.id, { id: away.id, name: away.name });
-
           const [day, month, year] = match.date.split('/');
           const matchTime = match.time || "19:00:00";
           const isoDate = new Date(`${year}-${month}-${day}T${matchTime}Z`);
 
           matchesToCreate.push({
-            homeTeamId: home.id,
-            awayTeamId: away.id,
+            homeTeamId: homeTeamId,
+            awayTeamId: awayTeamId,
             homeScore: goals.home_ft_goals,
             awayScore: goals.away_ft_goals,
             date: isoDate,
@@ -77,21 +93,15 @@ export const uploadMatches = async (): Promise<string> => {
       }
     }
 
-    const teams = Array.from(teamsToCreate.values());
-
-    await prisma.$transaction(async (tx) => {
-      await tx.team.createMany({
-        data: teams,
-        skipDuplicates: true,
-      });
-
-      await tx.match.createMany({
+    // 6. Insert the new matches into the database
+    if (matchesToCreate.length > 0) {
+      await prisma.match.createMany({
         data: matchesToCreate,
         skipDuplicates: true,
       });
-    });
+    }
 
-    return "Matches uploaded successfully.";
+    return `Matches uploaded successfully. ${matchesToCreate.length} new matches created.`;
   } catch (error) {
     console.error("Upload matches error:", error);
     throw new Error("Failed to upload matches");
