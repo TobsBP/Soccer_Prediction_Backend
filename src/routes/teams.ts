@@ -1,5 +1,6 @@
-import type { FastifyTypedInstance } from '../types'
 import { getTeams, getTeam, uploadTeams } from '../resolvers/teams';
+import { authenticateApiKey } from '../plugins/auth';
+import type { FastifyTypedInstance } from '../types'
 import z from "zod"
 
 const teamSchema = z.object({
@@ -9,6 +10,7 @@ const teamSchema = z.object({
 
 export async function teamRoutes(server: FastifyTypedInstance) {
   server.get('/getTeams', {
+    preHandler: authenticateApiKey,
     schema: {
       description: 'Get all Teams',
       response: {
@@ -32,6 +34,7 @@ export async function teamRoutes(server: FastifyTypedInstance) {
   });
 
   server.get('/getTeam', {
+    preHandler: authenticateApiKey,
     schema: {
       querystring: z.object({
         id: z.number(),
@@ -62,6 +65,7 @@ export async function teamRoutes(server: FastifyTypedInstance) {
   });
 
   server.get('/uploadTeams', {
+    preHandler: authenticateApiKey,
     schema: {
       description: 'Upload teams from external API',
       response: {
@@ -87,6 +91,7 @@ export async function teamRoutes(server: FastifyTypedInstance) {
       
       return reply.status(200).send({ data: teams });
     } catch (error) {
+      
       console.error("Can't reach the teams:", error);
       return reply.status(500).send({ message: "Failed to fetch teams" });
     }
