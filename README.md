@@ -19,7 +19,6 @@ This is the backend for a soccer prediction application. It provides a RESTful A
 *   **[Fastify](https://www.fastify.io/)**: A fast and low overhead web framework for Node.js.
 *   **[TypeScript](https://www.typescriptlang.org/)**: A typed superset of JavaScript that compiles to plain JavaScript.
 *   **[Prisma](https://www.prisma.io/)**: A next-generation ORM for Node.js and TypeScript.
-*   **[PostgreSQL](https://www.postgresql.org/)**: A powerful, open source object-relational database system.
 *   **[Zod](https://zod.dev/)**: A TypeScript-first schema declaration and validation library.
 *   **[Supabase](https://supabase.io/)**: An open source Firebase alternative.
 
@@ -31,13 +30,12 @@ To get a local copy up and running, follow these simple steps.
 
 *   [Node.js](https://nodejs.org/) (v22.0.0 or later)
 *   [npm](https://www.npmjs.com/)
-*   [PostgreSQL](https://www.postgresql.org/)
 
 ### Installation
 
 1.  Clone the repo:
     ```sh
-    git clone https://github.com/your_username/soccer_prediction_backend.git
+    git clone https://github.com/TobsBP/soccer_prediction_backend.git
     ```
 2.  Install NPM packages:
     ```sh
@@ -45,10 +43,12 @@ To get a local copy up and running, follow these simple steps.
     ```
 3.  Set up your environment variables by creating a `.env` file in the root of the project with the following content:
     ```
-    DIRECT_URL="your_postgresql_database_url"
-    API_SOCCER_KEY="your_soccer_data_api_key"
-    SUPABASE_URL="your_supabase_url"
-    SUPABASE_KEY="your_supabase_key"
+    DATABASE_URL=""
+    DIRECT_URL=""
+    SUPABASE_KEY=""
+    API_SOCCER_KEY=
+    GEMINI_API_KEY=
+    API_UPLOAD_KEY=
     ```
 4.  Run the database migrations:
     ```sh
@@ -86,8 +86,6 @@ The database schema is defined in the `prisma/schema.prisma` file. It consists o
 | :---------- | :------- | :--------------------------- |
 | `id`        | `String` | The unique ID of the team.   |
 | `name`      | `String` | The name of the team.        |
-| `homeMatches` | `Match[]`| A list of matches where the team is the home team. |
-| `awayMatches` | `Match[]`| A list of matches where the team is the away team. |
 
 ### `Match` Model
 
