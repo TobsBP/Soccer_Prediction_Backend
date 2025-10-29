@@ -1,9 +1,11 @@
+import { authenticateApiKey } from '../plugins/auth';
 import type { FastifyTypedInstance } from '../types'
 import { askAI } from '../resolvers/predictions'
 import z from 'zod'
 
 export async function aiRoutes(server: FastifyTypedInstance) {
   server.get('/askAI', {
+    preHandler: authenticateApiKey,
     schema: {
       querystring: z.object({
         homeTeamId: z.number(),
