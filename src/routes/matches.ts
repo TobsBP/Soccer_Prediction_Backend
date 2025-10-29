@@ -1,23 +1,8 @@
 import { getMatches, uploadMatches } from '../resolvers/matches'
 import { authenticateApiKey } from '../plugins/auth'
 import type { FastifyTypedInstance } from '../types'
+import { matchSchema } from '../types'
 import z from "zod"
-
-const teamSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-});
-
-const matchSchema = z.object({
-  id: z.number(),
-  homeTeamId: z.number(),
-  awayTeamId: z.number(),
-  homeScore: z.number(),
-  awayScore: z.number(),
-  date: z.date(),
-  homeTeam: teamSchema,
-  awayTeam: teamSchema,
-});
 
 export async function matchRoutes(server: FastifyTypedInstance) {
   server.post('/uploadMatches', {

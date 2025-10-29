@@ -1,5 +1,6 @@
 import type { FastifyBaseLogger, FastifyInstance, RawReplyDefaultExpression, RawRequestDefaultExpression, RawServerDefault } from "fastify"
 import type { ZodTypeProvider } from "fastify-type-provider-zod"
+import z from "zod";
 
 export type FastifyTypedInstance = FastifyInstance<
   RawServerDefault,
@@ -36,3 +37,19 @@ export interface Team {
   id: number,
   name: string
 }
+
+export const teamSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+});
+
+export const matchSchema = z.object({
+  id: z.number(),
+  homeTeamId: z.number(),
+  awayTeamId: z.number(),
+  homeScore: z.number(),
+  awayScore: z.number(),
+  date: z.date(),
+  homeTeam: teamSchema,
+  awayTeam: teamSchema,
+});

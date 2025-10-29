@@ -1,12 +1,10 @@
 import { getTeams, getTeam, uploadTeams } from '../resolvers/teams';
 import { authenticateApiKey } from '../plugins/auth';
 import type { FastifyTypedInstance } from '../types'
+import { teamSchema } from '../types'
 import z from "zod"
 
-const teamSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-});
+
 
 export async function teamRoutes(server: FastifyTypedInstance) {
   server.get('/getTeams', {
